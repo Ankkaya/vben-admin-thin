@@ -1,5 +1,6 @@
 import { defHttp } from '/@/utils/http/axios';
 import { LoginParams, LoginResultModel, GetUserInfoModel } from './model/userModel';
+import { AccountInfo } from '/#/store';
 
 import { ErrorMessageMode } from '/#/axios';
 
@@ -13,8 +14,20 @@ enum Api {
 /**
  * @description: user login api
  */
+// 登录接口
+// export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') {
+//   return defHttp.post<LoginResultModel>(
+//     {
+//       url: Api.Login,
+//       params,
+//     },
+//     {
+//       errorMessageMode: mode,
+//     },
+//   );
+// }
 export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') {
-  return defHttp.post<LoginResultModel>(
+  return defHttp.post<AccountInfo>(
     {
       url: Api.Login,
       params,

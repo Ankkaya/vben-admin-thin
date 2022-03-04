@@ -25,11 +25,17 @@ export interface RequestOptions {
   withToken?: boolean;
 }
 
+// 请求接口返回数据格式
+// export interface Result<T = any> {
+//   code: number;
+//   type: 'success' | 'error' | 'warning';
+//   msg: string;
+//   result: T;
+// }
 export interface Result<T = any> {
   code: number;
-  type: 'success' | 'error' | 'warning';
   msg: string;
-  result: T;
+  data: T;
 }
 
 // multipart/form-data: upload file

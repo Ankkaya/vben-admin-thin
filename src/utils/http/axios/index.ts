@@ -48,18 +48,19 @@ const transform: AxiosTransform = {
       throw new Error(t('sys.api.apiRequestFailed'));
     }
     //  这里 code，result，message为 后台统一的字段，需要在 types.ts内修改为项目自己的接口返回格式
-    const { code, result, msg } = data;
+    // const { code, data, msg } = data;
+    //
 
     // 这里逻辑可以根据项目进行修改
-    const hasSuccess = data && Reflect.has(data, 'code') && code === ResultEnum.SUCCESS;
+    const hasSuccess = data && Reflect.has(data, 'code') && data.code === ResultEnum.SUCCESS;
     if (hasSuccess) {
-      return result;
+      return data.data;
     }
 
     // 在此处根据自己项目的实际情况对不同的code执行不同的操作
     // 如果不希望中断当前请求，请return数据，否则直接抛出异常即可
     let timeoutMsg = '';
-    switch (code) {
+    switch (data.code) {
       case ResultEnum.TIMEOUT:
         timeoutMsg = t('sys.api.timeoutMessage');
         const userStore = useUserStoreWithOut();
@@ -67,8 +68,8 @@ const transform: AxiosTransform = {
         userStore.logout(true);
         break;
       default:
-        if (msg) {
-          timeoutMsg = msg;
+        if (data.msg) {
+          timeoutMsg = data.msg;
         }
     }
 

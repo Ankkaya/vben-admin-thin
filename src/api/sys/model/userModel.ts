@@ -14,6 +14,7 @@ export interface RoleInfo {
 /**
  * @description: Login interface return value
  */
+// 登录返回用户信息
 export interface LoginResultModel {
   userId: string | number;
   token: string;

@@ -12,7 +12,7 @@ import { useI18n } from '/@/hooks/web/useI18n';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { router } from '/@/router';
 import { usePermissionStore } from '/@/store/modules/permission';
-import { RouteRecordRaw } from 'vue-router';
+import { RouteRecord, RouteRecordRaw } from 'vue-router';
 import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
 import { isArray } from '/@/utils/is';
 import { h } from 'vue';
@@ -81,6 +81,7 @@ export const useUserStore = defineStore({
     // add
     setAccountInfo(info: AccountInfo | null) {
       this.accountInfo = info;
+      this.lastUpdateTime = new Date().getTime();
       setAuthCache(USER_INFO_KEY, info);
     },
     setSessionTimeout(flag: boolean) {
@@ -95,20 +96,51 @@ export const useUserStore = defineStore({
     /**
      * @description: login
      */
+    // 登录接口
+    // async login(
+    //   params: LoginParams & {
+    //     goHome?: boolean;
+    //     mode?: ErrorMessageMode;
+    //   },
+    // ): Promise<GetUserInfoModel | null> {
+    //   try {
+    //     const { goHome = true, mode, ...loginParams } = params;
+    //     const data = await loginApi(loginParams, mode);
+    //     const { token } = data;
+
+    //     // save token
+    //     this.setToken(token);
+    //     return this.afterLoginAction(goHome);
+    //   } catch (error) {
+    //     return Promise.reject(error);
+    //   }
+    // },
     async login(
       params: LoginParams & {
         goHome?: boolean;
         mode?: ErrorMessageMode;
       },
-    ): Promise<GetUserInfoModel | null> {
+    ): Promise<AccountInfo | null> {
       try {
         const { goHome = true, mode, ...loginParams } = params;
         const data = await loginApi(loginParams, mode);
-        // const { token } = data;
-
-        // save token
-        // this.setToken(token);
-        return this.afterLoginAction(goHome);
+        // 保存登录信息
+        this.setAccountInfo(data);
+        this.setToken('fakeToken1');
+        const permissionStore = usePermissionStore();
+        // 判断路由是否已经动态添加
+        if (!permissionStore.isDynamicAddedRoute) {
+          const routes = await permissionStore.buildRoutesAction();
+          console.log(routes);
+          routes.forEach((route) => {
+            router.addRoute(route as unknown as RouteRecord);
+          });
+          permissionStore.setDynamicAddedRoute(true);
+        }
+        // 跳转到首页
+        // goHome && (await router.replace(PageEnum.BASE_HOME));
+        goHome && (await router.replace('/'));
+        return data;
       } catch (error) {
         return Promise.reject(error);
       }
